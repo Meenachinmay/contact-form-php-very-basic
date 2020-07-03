@@ -5,9 +5,9 @@
     if (filter_has_var(INPUT_POST, 'submit')) {
         
         // get from data
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-        $message = $_POST['message'];
+        $name = htmlspecialchars($_POST['name']);
+        $email = htmlspecialchars($_POST['email']);
+        $message = htmlspecialchars($_POST['message']);
 
         // check required field
         if (!empty($email) && !empty($email) && !empty($message)) {
@@ -15,13 +15,35 @@
                 $error_message = 'Email is not valid';
                 $messageClass = 'alert-danger';
             }else {
-                echo 'passed';
+                $toEmail = 'support@meenachinmay.com';
+                $subject = 'Contact Request From ' . $name;
+                $body = '<h2>Contact Request </h2>
+                        <h4> Name </h4><p>' .$name. '</p>
+                        <h4> Email </h4><p>' .$email. '</p>
+                        <h4> Message </h4><p>' .$message. '</p>
+                        ';
+
+                $headers = "MIME-Version: 1.0" . "\r\n";
+                $headers .= "Content-Type:text/html;charset=UTF-8" . "\r\n";
+                $headers .= "From: " .$name. "<" .$email. ">". "\r\n";
+
+                if (mail($toEmail, $subject, $body, $headers)) {
+                    $error_message = 'Your email has been sent';
+                    $messageClass = 'alert-success';
+                    $_POST['name'] = "";
+                    $_POST["email"] = "";
+                    $_POST['message'] = "";
+                }else {
+                    $error_message = 'Your email was not sent';
+                    $messageClass = 'alert-danger';
+                }
             }
         }else {
             $error_message = 'Please fill all the fields';
             $messageClass = 'alert-danger';
         }
     }
+    session_destroy();
 ?>
 
 <!DOCTYPE html>
